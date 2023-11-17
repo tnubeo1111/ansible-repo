@@ -7,7 +7,7 @@ Then run the playbook, like this:
 
 ansible-playbook -i inventory playbook.yml
 
-The playbooks will configure MySQL, WordPress, Nginx, and PHP-FPM. When the run is complete, you can hit access server to begin the WordPress configuration.
+The playbooks will configure MySQL, WordPress, Nginx, and PHP-FPM. When the run is complete, you can hit access server to begin the WordPress configuration
 
 Ideas for Improvement
 Here are some ideas for ways that these playbooks could be extended:
