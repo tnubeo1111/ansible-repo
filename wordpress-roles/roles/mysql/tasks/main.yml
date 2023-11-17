@@ -1,0 +1,12 @@
+---
+  - name: "Install MySQL"
+    apt:
+      name: mysql-server
+      update_cache: yes
+  
+  - name: Create Mysql configuration file
+    template: src=/root/ansible/practice/wordpress-roles/roles/mysql/templates/my.cnf.j2 dest=/etc/my.cnf
+    notify: restart mysql
+
+  - name: Start Mysql Service
+    service: name=mysql state=started enabled=yes

@@ -1,0 +1,9 @@
+---
+# WordPress site is not restricted by a named host.
+server_hostname: ansible.thanhtha.name.vn
+
+# You shouldn't need to change this.
+mysql_port: 3360
+db_name: wordpress_db
+db_user: wordpress_db
+db_pass: wordpress_db

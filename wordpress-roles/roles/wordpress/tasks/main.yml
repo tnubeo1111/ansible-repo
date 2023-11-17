@@ -1,0 +1,41 @@
+---
+  - name: Create database for wordpress
+    mysql_db:
+        name: '{{db_name}}'
+        login_unix_socket: /var/run/mysqld/mysqld.sock 
+        state: present
+    tags: [ mysql ]
+
+  - name: Create Wordpress DB User
+    mysql_user:
+      name: '{{db_user}}'
+      password: '{{db_pass}}'
+      priv: '*.*:ALL'
+      host: '%'
+      state: present
+    tags: [ mysql ]
+
+  - name: Download and unpack latest WordPress
+    unarchive:
+      src: https://wordpress.org/latest.tar.gz
+      dest: /var/www/html
+      remote_src: yes
+      creates: /var/www/html/wordpress
+    tags: [ wordpress ]
+
+  - name: Set ownership
+    file:
+      path: /var/www/html
+      state: directory
+      recurse: yes
+      owner: www-data
+      group: www-data
+    tags: [ wordpress ]
+
+  - name: Set up wp-config
+    template:
+      src: /root/ansible/practice/wordpress-roles/roles/wordpress/templates/wp-config.php
+      dest: /var/www/html/wordpress
+      owner: www-data
+      group: www-data
+    notify: restart php-fpm

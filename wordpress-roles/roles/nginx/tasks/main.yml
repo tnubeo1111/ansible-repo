@@ -1,0 +1,9 @@
+---
+  - name: Install Nginx
+    apt: 
+      name: nginx
+      state: present
+  
+  - name: Copy nginx configuration for wordpress
+    template: src=/root/ansible/practice/wordpress-roles/roles/nginx/templates/wordpress.conf dest=/etc/nginx/conf.d/wordpress.conf
+    notify: Start Nginx Service

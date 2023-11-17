@@ -1,0 +1,12 @@
+- 
+  name: "Install WordPress on VPS"
+  hosts: vps02
+  become: true
+  any_errors_fatal: true
+  
+  roles:
+    - packegs
+    - nginx
+    - mysql
+    - php-fpm
+    - wordpress

@@ -1,0 +1,153 @@
+- 
+  name: "VPS 02"
+  hosts: vps02
+  become: true
+  any_errors_fatal: true
+  tasks:
+    - name: "Install package"
+      apt: 
+        name: '{{ item }}'
+      with_items: 
+        - software-properties-common
+        - python3
+        - python3-setuptools
+        - python3-dev
+        - build-essential
+        - python3-pip
+        - python3-mysqldb
+        - python3-certbot-nginx
+    
+    - name: Install Nginx
+      apt: 
+        name: nginx
+        state: present
+      notify: Start Nginx Service
+    
+    - name: "Install MySQL"
+      apt:
+        name: mysql-server
+        update_cache: yes
+      notify: Start MySQL Service
+
+    - name: Install PHP
+      apt:
+        name: '{{ item }}'
+        state: present
+        update_cache: yes 
+      with_items: 
+        - php-fpm
+        - php-mysql
+      notify: Start PHP Service
+
+    - name: create a new directory infophp with file
+      file: 
+        dest: /var/www/html/infophp
+        state: directory
+        mode: 0755
+        owner: root
+
+    - name: create a new file info.php with file
+      file:
+        dest: /var/www/html/infophp/index.php
+        state: touch
+        mode: 0644
+        owner: root
+
+    - name: add line for index.php
+      lineinfile: 
+        path: /var/www/html/infophp/index.php
+        line: <?php phpinfo(); ?>
+        state: present
+    
+    - name: copy file default.conf
+      copy:
+        src: /root/ansible/practice/prj-wordpress/nginx/default.conf.bk
+        dest: /etc/nginx/conf.d 
+        owner: root
+        group: root 
+        mode: 0644
+
+    - name: Create database for wordpress
+      mysql_db:
+        name: wordpress_db1
+        login_unix_socket: /var/run/mysqld/mysqld.sock 
+        state: present
+      tags: [ mysql ]
+    
+    - name: Create Wordpress DB User
+      mysql_user:
+        name: wordpress_db1
+        password: wordpress_db1
+        priv: '*.*:ALL'
+        host: '%'
+        state: present
+      tags: [ mysql ]
+
+    - name: Download and unpack latest WordPress
+      unarchive:
+        src: https://wordpress.org/latest.tar.gz
+        dest: /var/www/html
+        remote_src: yes
+        creates: /var/www/html/wordpress
+      tags: [ wordpress ]
+    
+    - name: Set ownership
+      file:
+        path: /var/www/html
+        state: directory
+        recurse: yes
+        owner: www-data
+        group: www-data
+      tags: [ wordpress ]
+
+    - name: Set up wp-config
+      copy:
+        src: /root/ansible/practice/prj-wordpress/wp/wp-config.php
+        dest: /var/www/html/wordpress
+        owner: www-data
+        group: www-data 
+
+    - name: Set up wordpress.conf
+      copy:
+        src: /root/ansible/practice/prj-wordpress/nginx/wordpress.conf
+        dest: /etc/nginx/conf.d 
+        owner: root
+        group: root 
+        mode: 0644
+
+    - name: Install certbot
+      apt: 
+        name: certbot
+        state: present
+    
+    # - name: Create a Certbot configuration file
+    #   copy:
+    #     src: /root/ansible/practice/prj-wordpress/ssl/certbot.ini
+    #     dest: /etc/letsencrypt/certbot.ini
+    #   notify: Start Nginx Service
+    
+    # - name: SSL/TLS certificate
+    #   command: certbot --nginx -d ansible.sysculi.pw
+    #   args:
+    #     creates: /etc/letsencrypt/live/ansible.sysculi.pw/fullchain.pem
+    #   notify: Start Nginx Service
+
+
+  handlers:
+    - name: Start Nginx Service
+      service:
+        name: nginx
+        state: started
+        enabled: yes
+    
+    - name: Start MySQL Service
+      service:
+        name: mysql
+        state: started
+        enabled: yes
+    
+    - name: Start PHP Service
+      service:
+        name: php7.4-fpm
+        state: started
+        enabled: yes

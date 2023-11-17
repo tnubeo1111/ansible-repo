@@ -1,0 +1,2 @@
+# Connection container in docker
+vps02 ansible_host=61.14.234.12 ansible_port=2018 ansible_connection=ssh ansible_ssh_pass=HcnDGhwNQXXKf58

@@ -1,0 +1,21 @@
+---
+  - name: Install PHP
+    apt:
+      name: '{{ item }}'
+      state: present
+      update_cache: yes 
+    with_items:
+      - php 
+      - php-fpm
+      - php-mysql
+      - php-mbstring
+      - libphp-phpmailer
+      - php-xml
+
+  - name: Disable default pool
+    command: mv /etc/php/7.4/fpm/pool.d/www.conf /etc/php/7.4/fpm/pool.d/www.disabled creates=/etc/php/7.4/fpm/pool.d/www.disabled
+    notify: restart php-fpm
+
+  - name: Copy php-fpm configuration
+    template: src=/root/ansible/practice/wordpress-roles/roles/php-fpm/templates/default.conf dest=/etc/php/7.4/fpm/pool.d/
+    notify: restart php-fpm
