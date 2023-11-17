@@ -5,7 +5,8 @@ These playbooks deploy a simple all-in-one configuration of the popular WordPres
 
 Then run the playbook, like this:
 
-ansible-playbook -i inventory playbook.yml
+ansible-playbook -i inventory playbook.yml.
+
 The playbooks will configure MySQL, WordPress, Nginx, and PHP-FPM. When the run is complete, you can hit access server to begin the WordPress configuration.
 
 Ideas for Improvement
